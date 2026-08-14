@@ -3,7 +3,6 @@ cia_api.py
 ==========
 
 Proyecto: CIA Triad Demo API
-Autor: Citlali Guzman
 Descripción: API que demuestra los principios de confidencialidad, integridad y disponibilidad
 
 C - Confidencialidad: cifra y descifra mensajes
