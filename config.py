@@ -1,8 +1,4 @@
-# ============================================================
-# CONFIGURACIÓN DE MYSQL
-# ============================================================
-# Cambia únicamente MYSQL_PASSWORD si tu contraseña es distinta.
-# Si tu usuario de MySQL no es "root", cambia también MYSQL_USER.
+# CONFIGURACIÓN DE MYSQL.
 
 MYSQL_HOST = "127.0.0.1"
 MYSQL_PORT = 3306

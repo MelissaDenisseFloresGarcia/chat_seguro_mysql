@@ -6,6 +6,7 @@
     <title>Chat Seguro CIA</title>
 
     <style>
+        /* Estilo general de la página */
         * {
             box-sizing: border-box;
         }
@@ -17,6 +18,7 @@
             color: #1e293b;
         }
 
+        /* Contenedor principal del chat */
         .app {
             width: min(900px, 94%);
             margin: 30px auto;
@@ -42,6 +44,7 @@
             opacity: 0.85;
         }
 
+        /* Área para seleccionar el usuario */
         .toolbar {
             display: flex;
             align-items: center;
@@ -63,6 +66,7 @@
             padding: 10px;
         }
 
+        /* Área donde se muestran los mensajes */
         #messages {
             min-height: 420px;
             max-height: 520px;
@@ -79,6 +83,7 @@
             background: #e2e8f0;
         }
 
+        /* Mensajes enviados por el usuario actual */
         .mine {
             margin-left: auto;
             background: #dbeafe;
@@ -96,6 +101,7 @@
             word-break: break-word;
         }
 
+        /* Estado de verificación del mensaje */
         .status {
             margin-top: 8px;
             font-size: 12px;
@@ -114,6 +120,7 @@
             color: #b91c1c;
         }
 
+        /* Formulario para enviar mensajes */
         form {
             display: flex;
             gap: 10px;
@@ -149,11 +156,13 @@
 <body>
 <div class="app">
 
+    <!-- Encabezado del chat -->
     <header>
         <h1>Chat Seguro</h1>
         <p>Cifrado e integridad mediante CIA API + MySQL</p>
     </header>
 
+    <!-- Selector para cambiar entre Usuario A y Usuario B -->
     <div class="toolbar">
         <label for="currentUser">
             <strong>Hablar como:</strong>
@@ -165,8 +174,10 @@
         </select>
     </div>
 
+    <!-- Aquí se muestran los mensajes obtenidos desde el servidor -->
     <div id="messages"></div>
 
+    <!-- Formulario para escribir y enviar mensajes -->
     <form id="messageForm">
         <input
             id="messageInput"
@@ -181,17 +192,20 @@
 </div>
 
 <script>
+    // Obtiene los elementos principales de la página
     const messagesContainer = document.getElementById("messages");
     const currentUserSelect = document.getElementById("currentUser");
     const messageForm = document.getElementById("messageForm");
     const messageInput = document.getElementById("messageInput");
 
+    // Determina quién recibe el mensaje según el usuario seleccionado
     function receiverFor(sender) {
         return sender === "Usuario A"
             ? "Usuario B"
             : "Usuario A";
     }
 
+    // Consulta los mensajes almacenados en la base de datos
     async function loadMessages() {
         try {
             const response = await fetch("/messages");
@@ -204,6 +218,7 @@
 
             messagesContainer.innerHTML = "";
 
+            // Muestra un aviso cuando todavía no existen mensajes
             if (messages.length === 0) {
                 messagesContainer.innerHTML =
                     '<div class="empty">Todavía no hay mensajes.</div>';
@@ -212,6 +227,7 @@
 
             const currentUser = currentUserSelect.value;
 
+            // Recorre y muestra cada mensaje
             for (const item of messages) {
                 const box = document.createElement("div");
 
@@ -219,7 +235,7 @@
                     "message" +
                     (item.sender === currentUser ? " mine" : "");
 
-                // El requisito pide mostrar primero "No verificado".
+                // El mensaje aparece primero como No verificado
                 box.innerHTML = `
                     <div class="meta">
                         ${escapeHtml(item.sender)}
@@ -243,14 +259,14 @@
 
                 messagesContainer.appendChild(box);
 
-                // Dejamos visible "No verificado" un momento y
-                // posteriormente hacemos la llamada de verificación.
+                // Después de mostrarlo solicita la verificación de integridad
                 setTimeout(
                     () => verifyMessage(item.id),
                     700
                 );
             }
 
+            // Lleva la vista al mensaje más reciente
             messagesContainer.scrollTop =
                 messagesContainer.scrollHeight;
 
@@ -260,6 +276,7 @@
         }
     }
 
+    // Solicita al servidor verificar la integridad del mensaje
     async function verifyMessage(id) {
         const statusElement =
             document.getElementById(`status-${id}`);
@@ -278,6 +295,7 @@
 
             const data = await response.json();
 
+            // Cambia el estado según el resultado de la verificación
             if (data.valid === true) {
                 statusElement.textContent =
                     "Mensaje verificado";
@@ -301,6 +319,7 @@
         }
     }
 
+    // Envía el mensaje cuando se presiona el botón Enviar
     messageForm.addEventListener(
         "submit",
         async (event) => {
@@ -320,6 +339,7 @@
             }
 
             try {
+                // Envía remitente destinatario y mensaje al backend
                 const response = await fetch(
                     "/messages",
                     {
@@ -348,8 +368,10 @@
                     return;
                 }
 
+                // Limpia el cuadro de texto después de enviar
                 messageInput.value = "";
 
+                // Actualiza los mensajes mostrados
                 await loadMessages();
 
             } catch (error) {
@@ -360,11 +382,13 @@
         }
     );
 
+    // Actualiza el chat al cambiar de usuario
     currentUserSelect.addEventListener(
         "change",
         loadMessages
     );
 
+    // Evita que el contenido de los mensajes se interprete como código HTML
     function escapeHtml(text) {
         const div =
             document.createElement("div");
@@ -374,12 +398,12 @@
         return div.innerHTML;
     }
 
-    // Primera lectura desde la base de datos.
+    // Carga los mensajes al abrir la página
     loadMessages();
 
-    // Actualiza el chat cada 3 segundos para poder
-    // usar Usuario A y Usuario B en dos pestañas.
+    // Actualiza el chat cada 3 segundos
     setInterval(loadMessages, 3000);
 </script>
+
 </body>
 </html>
